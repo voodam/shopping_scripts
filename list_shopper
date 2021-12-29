@@ -6,12 +6,12 @@ import shops
 from helpers import read_stdin, selenium_driver
 from config import config
 
-def buy(shop, choice_strategy, goods):
-	for good in goods:
-		logging.info(f"Current good: {good}")
+def buy(shop, choice_strategy, products):
+	for product in products:
+		logging.info(f"Current product: {product}")
 
-		shop.search(good)
-		step = choice_strategy(shop, good)
+		shop.search(product)
+		step = choice_strategy(shop, product)
 		if step == Step.BREAK:
 			break
 		elif step == Step.CONTINUE:
@@ -19,16 +19,17 @@ def buy(shop, choice_strategy, goods):
 
 	shop.go_to_cart()
 
-def default_choice_strategy(shop, good):
-	count = shop.count_goods()
+def default_choice_strategy(shop, product):
+	products = list(shop.get_all_products())
+	count = len(products)
 
 	if count == 1:
-		shop.add_first_good()
+		products[0].add_to_cart()
 	elif count == 0:
-		logging.info(f"{good} not found, continue shopping")
+		logging.info(f"{product} not found, continue shopping")
 	else:
-		shop.add_first_good()
-		logging.info(f"{good} several found, buy the first one")
+		products[0].add_to_cart()
+		logging.info(f"{product} several found, buy the first one")
 
 	return Step.CONTINUE
 
@@ -39,8 +40,8 @@ class Step(Enum):
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 shop_name = sys.argv[1]
-goods = read_stdin()
+products = read_stdin()
 
 with selenium_driver(config["selenium"]["path"], wait_quit=86400) as driver:
 	shop = getattr(shops, shop_name)(driver)
-	buy(shop, default_choice_strategy, goods)
+	buy(shop, default_choice_strategy, products)

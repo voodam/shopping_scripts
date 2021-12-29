@@ -1,6 +1,7 @@
 from time import sleep
 from config import config
 from urllib.parse import urlparse
+from selenium.webdriver.common.by import By
 
 class Shop:
 	def __init__(self, driver, host, search_route, cart_route="/cart",
@@ -23,27 +24,35 @@ class Shop:
 		for cookie in cookies:
 			self.driver.add_cookie(cookie)
 
-	def search(self, good):
-		self.driver.get(self.search_url % good);
+	def search(self, product):
+		self.driver.get(self.search_url % product);
 		sleep(self.loading_time)
 
 	def go_to_cart(self):
 		self.driver.get(self.cart_url)
 
-	def count_goods(self):
+	def get_all_products(self):
+		elements = self._get_all_product_elements()
+		return map(lambda element: self._product_factory(element), elements)
+
+	def _get_all_product_elements(self):
 		raise NotImplementedError()
 
-	def add_first_good(self):
+	def _product_factory(self, element):
 		raise NotImplementedError()
 
-	def _count_goods(self, selector):
-		elements = self.driver.find_elements_by_css_selector(selector)
-		return len(elements)
+class Product:
+	def __init__(self, element):
+		self.element = element
 
-	def _add_first_good(self, selector):
-		button = self.driver.find_element_by_css_selector(selector)
-		button.click()
+	def add_to_cart(self):
+		raise NotImplementedError()
 
+	def get_name(self):
+		raise NotImplementedError()
+
+	def get_price(self):
+		raise NotImplementedError()
 
 class DeliveryClub(Shop):
 	def __init__(self, driver, store_name):
@@ -55,13 +64,18 @@ class DeliveryClub(Shop):
 			loading_time=2
 		)
 
-	def count_goods(self):
+	def _get_all_product_elements(self):
 		selector = ".shop-product__info:not(.shop-product__info--blocked)"
-		return self._count_goods(selector)
+		return self.driver.find_elements(By.CSS_SELECTOR, selector)
 
-	def add_first_good(self):
-		selector = ".shop-product__info:not(.shop-product__info--blocked) button"
-		self._add_first_good(selector)
+	def _product_factory(self, element):
+		return DeliveryClubProduct(element)
+
+class DeliveryClubProduct(Product):
+	def add_to_cart(self):
+		self.element	\
+				.find_element(By.TAG_NAME, "button")	\
+				.click()
 
 for name, store_name in config["delivery_club_shops"].items():
 	globals()[name] = type(name, (DeliveryClub,), {

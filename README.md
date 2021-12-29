@@ -5,11 +5,11 @@ Scripts for automatization of routine shopping tasks.
 ### Example of usage
 
 ``` bash
-$ cat goods
+$ cat products
 milk
 bred
 cucumbers
 apples
 
-$ ./list_shopper Megamart < goods
+$ ./list_shopper Megamart < products
 ```
