@@ -4,16 +4,16 @@ from contextlib import contextmanager
 import os, fileinput, time
 
 @contextmanager
-def selenium_driver(driver_path, wait_quit=0):
+def selenium_driver(driver_path):
   try:
     service = Service(driver_path)
     service.start()
     driver = webdriver.Remote(service.service_url)
     yield driver
   finally:
-    time.sleep(wait_quit)
     driver.quit()
 
-def read_stdin():
-  return map(lambda line: line.rstrip(), fileinput.input(files=["-"]))
-
+def file_to_list(file_path):
+  with open(file_path, "r") as file:
+    lines = list(map(lambda line: line.rstrip(), file))
+  return lines

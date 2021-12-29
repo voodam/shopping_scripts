@@ -1,4 +1,4 @@
-from time import sleep
+import time
 from config import config
 from urllib.parse import urlparse
 from selenium.webdriver.common.by import By
@@ -26,14 +26,15 @@ class Shop:
 
   def search(self, product):
     self.driver.get(self.search_url % product);
-    sleep(self.loading_time)
+    time.sleep(self.loading_time)
 
   def go_to_cart(self):
     self.driver.get(self.cart_url)
 
   def get_all_products(self):
     elements = self._get_all_product_elements()
-    return map(lambda element: self._product_factory(element), elements)
+    products = map(lambda element: self._product_factory(element), elements)
+    return list(products)
 
   def _get_all_product_elements(self):
     raise NotImplementedError()
@@ -61,7 +62,7 @@ class DeliveryClub(Shop):
       "https://www.delivery-club.ru",
       f"/store/{store_name}?grocerySearch=%s",
       "/checkout",
-      loading_time=2
+      loading_time=3
     )
 
   def _get_all_product_elements(self):
@@ -73,8 +74,8 @@ class DeliveryClub(Shop):
 
 class DeliveryClubProduct(Product):
   def add_to_cart(self):
-    self.element  \
-        .find_element(By.TAG_NAME, "button")  \
+    self.element \
+        .find_element(By.TAG_NAME, "button") \
         .click()
 
 for name, store_name in config["delivery_club_shops"].items():

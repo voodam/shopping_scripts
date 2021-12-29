@@ -11,5 +11,5 @@ bred
 cucumbers
 apples
 
-$ ./list_shopper Megamart < products
+$ ./list_shopping Megamart products
 ```
