@@ -1,59 +1,28 @@
 #!/usr/bin/env python3
 
-from enum import Enum
 import sys, logging
-import shops
 from helpers import file_to_list, selenium_driver
 from config import config
+import shops, choice_strategies
 
-def buy(shop, choice_strategy, products):
-  for product in products:
-    logging.info(f"Current: {product}")
-
-    shop.search(product)
-    step = choice_strategy(shop, product)
-    if step == Step.BREAK:
-      break
-    elif step == Step.CONTINUE:
-      continue
+def buy(shop, choice_strategy, queries):
+  for query in queries:
+    logging.info(f"Current: {query}")
+    products = choice_strategy(shop, query)
+    for product in products:
+      product.add_to_cart()
 
   shop.go_to_cart()
-  print("Finish the order and then press the Enter")
+  print("Finish the order and then press Enter")
   input()
-
-def buy_first_strategy(shop, product):
-  products = shop.get_all_products()
-  count = len(products)
-  logging.info(f"Count: {count}")
-
-  if count != 0:
-    products[0].add_to_cart()
-
-  return Step.CONTINUE
-
-def ask_strategy(shop, product):
-  products = shop.get_all_products()
-  count = len(products)
-  logging.info(f"Count: {count}")
-
-  if count == 1:
-    products[0].add_to_cart()
-  elif count > 1:
-    print(f"{product}: found several ones, please choose the one you want in the brower," +
-          " and then press the Enter in the command line")
-    input()
-
-  return Step.CONTINUE
-
-class Step(Enum):
-  BREAK = 1
-  CONTINUE = 2
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
-shop_name = sys.argv[1]
-products = file_to_list(sys.argv[2])
+shop_name, strategy_name, queries_file = sys.argv[1:]
+shop_class = getattr(shops, shop_name)
+strategy = getattr(choice_strategies, strategy_name)
+queries = file_to_list(queries_file)
 
 with selenium_driver(config["selenium"]["path"]) as driver:
-  shop = getattr(shops, shop_name)(driver)
-  buy(shop, buy_first_strategy, products)
+  shop = shop_class(driver)
+  buy(shop, strategy, queries)

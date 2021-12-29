@@ -2,6 +2,8 @@ import time
 from config import config
 from urllib.parse import urlparse
 from selenium.webdriver.common.by import By
+import choice_strategies
+from helpers import parse_float
 
 class Shop:
   def __init__(self, driver, host, search_route, cart_route="/cart",
@@ -33,8 +35,7 @@ class Shop:
 
   def get_all_products(self):
     elements = self._get_all_product_elements()
-    products = map(lambda element: self._product_factory(element), elements)
-    return list(products)
+    return [self._product_factory(element) for element in elements]
 
   def _get_all_product_elements(self):
     raise NotImplementedError()
@@ -45,7 +46,7 @@ class Shop:
 class Product:
   def __init__(self, element):
     self.element = element
-
+    
   def add_to_cart(self):
     raise NotImplementedError()
 
@@ -55,6 +56,9 @@ class Product:
   def get_price(self):
     raise NotImplementedError()
 
+  def __repr__(self):
+    return f"{self.get_name()}: {self.get_price()}"
+
 class DeliveryClub(Shop):
   def __init__(self, driver, store_name):
     Shop.__init__(
@@ -62,7 +66,7 @@ class DeliveryClub(Shop):
       "https://www.delivery-club.ru",
       f"/store/{store_name}?grocerySearch=%s",
       "/checkout",
-      loading_time=3
+      loading_time=4
     )
 
   def _get_all_product_elements(self):
@@ -74,9 +78,14 @@ class DeliveryClub(Shop):
 
 class DeliveryClubProduct(Product):
   def add_to_cart(self):
-    self.element \
-        .find_element(By.TAG_NAME, "button") \
-        .click()
+    self.element.find_element(By.CSS_SELECTOR, ".shop-product__btn").click()
+
+  def get_name(self):
+    return self.element.find_element(By.CSS_SELECTOR, ".shop-product__title").text.strip()
+
+  def get_price(self):
+    element = self.element.find_element(By.CSS_SELECTOR, ".shop-product__price")
+    return parse_float(element.text)
 
 for name, store_name in config["delivery_club_shops"].items():
   globals()[name] = type(name, (DeliveryClub,), {

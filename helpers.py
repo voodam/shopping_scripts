@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from contextlib import contextmanager
-import os, fileinput, time
+import os, fileinput, time, re
 
 @contextmanager
 def selenium_driver(driver_path):
@@ -15,5 +15,16 @@ def selenium_driver(driver_path):
 
 def file_to_list(file_path):
   with open(file_path, "r") as file:
-    lines = list(map(lambda line: line.rstrip(), file))
+    lines = [line.rstrip() for line in file]
   return lines
+
+def parse_float(string):
+  return float(re.search("[\d\s]+([.,]\d+)*", string).group(0) \
+                 .replace(" ", "") \
+                 .replace(",", "."))
+
+def flatmap(func, *iterable):
+  return itertools.chain.from_iterable(map(func, *iterable))
+
+def throw(error):
+  raise error
