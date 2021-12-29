@@ -1,25 +1,23 @@
-import json
-
 config = {
-	"selenium": {
-		"path": "/opt/chromedriver"
-	},
-	"cookies": {
-		"delivery_club": [{
-			"name": "refresh_token", 
-			"value": "XXX"
-		}, {
-			"name":	"selected_address",
-			"value": "XXX"
-		}]
-	},
-	"delivery_club_shops": {
-		"Magnit": "magnit_ekb",
-		"Vernyi": "vjernyj_ekb",
-		"Samokat": "samokat_produkty_ekb",
-		"Megamart": "mjegamart_ekb",
-		"Metro": "metro_ekb",
-		"Auchan": "ashan_ekb",
-		"Okay": "okjej_ekb"
-	}
+  "selenium": {
+    "path": "/opt/chromedriver"
+  },
+  "cookies": {
+    "delivery_club": [{
+      "name": "refresh_token",
+      "value": "XXX"
+    }, {
+      "name":  "selected_address",
+      "value": "XXX"
+    }]
+  },
+  "delivery_club_shops": {
+    "Magnit": "magnit_ekb",
+    "Vernyi": "vjernyj_ekb",
+    "Samokat": "samokat_produkty_ekb",
+    "Megamart": "mjegamart_ekb",
+    "Metro": "metro_ekb",
+    "Auchan": "ashan_ekb",
+    "Okay": "okjej_ekb"
+  }
 }
