@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+
+from enum import Enum
+import sys, logging
+import shops
+from helpers import read_stdin, selenium_driver
+from config import config
+
+def buy(shop, choice_strategy, goods):
+	for good in goods:
+		logging.info(f"Current good: {good}")
+
+		shop.search(good)
+		step = choice_strategy(shop, good)
+		if step == Step.BREAK:
+			break
+		elif step == Step.CONTINUE:
+			continue
+
+	shop.go_to_cart()
+
+def default_choice_strategy(shop, good):
+	count = shop.count_goods()
+
+	if count == 1:
+		shop.add_first_good()
+	elif count == 0:
+		logging.info(f"{good} not found, continue shopping")
+	else:
+		shop.add_first_good()
+		logging.info(f"{good} several found, buy the first one")
+
+	return Step.CONTINUE
+
+class Step(Enum):
+	BREAK = 1
+	CONTINUE = 2
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+shop_name = sys.argv[1]
+goods = read_stdin()
+
+with selenium_driver(config["selenium"]["path"]) as driver:
+	shop = getattr(shops, shop_name)(driver)
+	buy(shop, default_choice_strategy, goods)
