@@ -4,7 +4,7 @@ from contextlib import contextmanager
 import os, fileinput, time
 
 @contextmanager
-def selenium_driver(driver_path, wait_quit=99999):
+def selenium_driver(driver_path, wait_quit=0):
 	try:
 		service = Service(driver_path)
 		service.start()

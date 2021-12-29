@@ -41,6 +41,6 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 shop_name = sys.argv[1]
 goods = read_stdin()
 
-with selenium_driver(config["selenium"]["path"]) as driver:
+with selenium_driver(config["selenium"]["path"], wait_quit=86400) as driver:
 	shop = getattr(shops, shop_name)(driver)
 	buy(shop, default_choice_strategy, goods)
