@@ -1,18 +1,20 @@
-import logging
+import logging, re
 from helpers import flatmap, throw
 
 def includes_words(target, query):
   query_words = set(query.lower().split())
-  target_words = target.lower().replace(",", ".").split()
+  target_words = re.split("\.* ", target.lower().replace(",", "."))
   return query_words.issubset(target_words)
 
 def constructor(choose_many):
   def strategy(shop, query):
     shop.search(query)
-    products = [product for product in shop.get_all_products()
+    all_products = shop.get_all_products()
+    products = [product for product in all_products
       if includes_words(product.get_name(), query)]
     count = len(products)
-    logging.info(f"Count: {count}")
+    logging.info(f"Filtered products: {count}, {products}")
+    logging.info(f"Full list: {all_products}")
 
     if count == 0:
       return []
@@ -31,7 +33,7 @@ def all_from_many(products):
 
 def ask_on_many(products):
   assert len(products) > 1
-  print(f"Found several ones, please choose the one you want in the brower," +
+  print(f"Found several ones, please choose the one you want in the browser," +
         " and then press Enter in the command line")
   input()
   return []

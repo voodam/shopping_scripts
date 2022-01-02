@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys, logging
-from helpers import file_to_list, selenium_driver
+from helpers import read_ignore_comments, selenium_driver
 from config import config
 import shops, choice_strategies
 
@@ -21,8 +21,9 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 shop_name, strategy_name, queries_file = sys.argv[1:]
 shop_class = getattr(shops, shop_name)
 strategy = getattr(choice_strategies, strategy_name)
-queries = file_to_list(queries_file)
+queries = read_ignore_comments(queries_file)
 
 with selenium_driver(config["selenium"]["path"]) as driver:
+  driver.maximize_window()
   shop = shop_class(driver)
   buy(shop, strategy, queries)
