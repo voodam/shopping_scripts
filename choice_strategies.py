@@ -13,8 +13,8 @@ def constructor(choose_many):
     products = [product for product in all_products
       if includes_words(product.get_name(), query)]
     count = len(products)
-    logging.info(f"Filtered products: {count}, {products}")
-    logging.info(f"Full list: {all_products}")
+    logging.info(f"Filtered products: {count}")
+    logging.info(f"Full list: {len(all_products)}, {all_products}")
 
     if count == 0:
       return []
@@ -31,13 +31,6 @@ def first_from_many(products):
 def all_from_many(products):
   return products
 
-def ask_on_many(products):
-  assert len(products) > 1
-  print(f"Found several ones, please choose the one you want in the browser," +
-        " and then press Enter in the command line")
-  input()
-  return []
-
 def reduce_price(products, reduce):
   if not products:
     return []
@@ -52,9 +45,15 @@ def max_price_from_many(products):
 
 first = constructor(first_from_many)
 all = constructor(all_from_many)
-ask = constructor(ask_on_many)
 min_price = constructor(min_price_from_many)
 max_price = constructor(max_price_from_many)
+
+def ask(shop, query):
+  shop.search(query)
+  print(f"Please choose the product you want in the browser," +
+        " and then press Enter in the command line")
+  input()
+  return []
 
 def smart(shop, query_line):
   query_list, *flags = query_line.split("|")
